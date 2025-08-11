@@ -2,7 +2,7 @@
 // The screen should:
 // ✅ Use React Native + Expo components
 // ✅ Support both manual and voice-to-text input
-// ✅ Save entries into the SQLiteService.ts service
+// ✅ Save entries into the async db module
 // ✅ Include debugging console logs for easy testing
 // ✅ Work fully offline, no backend
 
@@ -27,7 +27,7 @@
 // - Use state to manage which field is currently recording
 
 // On submit:
-// - Call insertLog() from SQLiteService with:
+// - Call insertLog() from db with:
 //   { technique_name, notes, teacher, partner, date: new Date().toISOString(), source: "voice" or "manual" }
 // - Reset form
 // - Show confirmation
@@ -38,8 +38,8 @@
 // - Errors
 // - InsertLog success/failure
 
-// Assume SQLiteService is already implemented and available via:
-import { insertLog } from '../services/SQLiteService';
+// Assume db helpers are already implemented and available via:
+import { insertLog } from '../src/db';
 
 
 

@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-import { createTable } from './db/techniques';
+import { getDb } from './src/db';
 import HomeScreen from './screens/HomeScreen';
 import LogScreen from './screens/LogScreen';
 import HistoryScreen from './screens/HistoryScreen';
@@ -12,7 +12,9 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   useEffect(() => {
-    createTable(); // Create the SQLite table on startup
+    (async () => {
+      await getDb();
+    })();
   }, []);
 
   return (
