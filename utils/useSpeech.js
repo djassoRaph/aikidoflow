@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import Voice from '@react-native-community/voice';
+import { useEffect, useState } from 'react';
+import Voice from '../src/voice';
 
 const useSpeech = () => {
   const [isListening, setIsListening] = useState(false);

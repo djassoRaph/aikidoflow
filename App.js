@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { useEffect } from 'react';
 
-import { getDb } from './src/db';
-import HomeScreen from './screens/HomeScreen';
-import LogScreen from './screens/LogScreen';
 import HistoryScreen from './screens/HistoryScreen';
+import LogScreen from './screens/LogScreen';
+import { getDb } from './src/db';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,15 +19,13 @@ export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName="Home"
+        initialRouteName="Ajouter"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
             let iconName;
 
-            if (route.name === 'Accueil') {
-              iconName = 'home-outline';
-            } else if (route.name === 'Ajouter') {
-              iconName = 'add-circle-outline';
+            if (route.name === 'Ajouter') {
+              iconName = 'add-circle-outline';            
             } else if (route.name === 'Historique') {
               iconName = 'list-circle-outline';
             }
@@ -40,7 +37,7 @@ export default function App() {
           headerShown: false,
         })}
       >
-        <Tab.Screen name="Accueil" component={HomeScreen} />
+        
         <Tab.Screen name="Ajouter" component={LogScreen} />
         <Tab.Screen name="Historique" component={HistoryScreen} />
       </Tab.Navigator>
