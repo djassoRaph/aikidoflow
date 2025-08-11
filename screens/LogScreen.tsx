@@ -57,8 +57,11 @@ import { insertLog } from '../src/db';
 
 import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
-import { Animated, Button, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, Button, Keyboard, NativeModules, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Voice, { voiceAvailable } from '../src/voice'; // ✅ relative path
+console.log('voiceAvailable =', voiceAvailable);
+console.log('NativeModules.Voice =', NativeModules.Voice);
+
 
 // Placeholder for IconSymbol
 const IconSymbol = ({ name, color, size }: { name: string; color: string; size: number }) => (
@@ -201,15 +204,11 @@ const stopVoice = async () => {
         value={form.partner}
         onChangeText={v => handleChange('partner', v)}
       />
-      <Button title="Log Technique" onPress={handleSubmit} />
-      <TouchableOpacity style={styles.switchBtn} onPress={() => navigation.navigate('Historique')}>
-        <Text style={styles.switchBtnText}>📄 Historique</Text>
-      </TouchableOpacity>
+      <Button title="Save Technique" onPress={handleSubmit} />
       {feedback ? <Text style={styles.feedback}>{feedback}</Text> : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
-  );
-}
+  );}
 
 const styles = StyleSheet.create({
   container: {

@@ -16,9 +16,9 @@
 
 // Export the screen as default from the file.
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { getLogs, LogRow } from '../src/db';
 
 export default function HistoryScreen() {
@@ -59,9 +59,6 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.switchBtn} onPress={() => navigation.navigate('LogScreen')}>
-        <Text style={styles.switchBtnText}>📝 Log</Text>
-      </TouchableOpacity>
       <FlatList
         data={logs}
         keyExtractor={(item, idx) => (item.id ? String(item.id) : String(idx))}
