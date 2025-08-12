@@ -1,5 +1,5 @@
 // Create a new React Native screen in TypeScript named `HistoryScreen`.
-// This screen will fetch and display all Aikido training logs from SQLiteService.
+// This screen will fetch and display all Aikido training logs from the async db helpers.
 // Logs include: techniqueName, notes, teacher, partner, source (manual/voice), date (ISO format).
 
 // UI:
@@ -10,25 +10,25 @@
 // - If no logs exist, show centered message: "Aucun log enregistré"
 // - Add a RefreshControl (pull to refresh)
 
-// Call `getAllLogs()` from `SQLiteService.ts`, which returns logs as an array of objects
+// Call `getLogs()` from `src/db.ts`, which returns logs as an array of objects
 
 // Keep the screen visually consistent with LogScreen styling
 
 // Export the screen as default from the file.
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { getAllLogs } from '../services/SQLiteService';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { getLogs, LogRow } from '../src/db';
 
 export default function HistoryScreen() {
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState<LogRow[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation<any>();
 
   const fetchLogs = useCallback(async () => {
     try {
-      const data = await getAllLogs();
+      const data = await getLogs();
       setLogs(data);
     } catch (e) {
       setLogs([]);
@@ -45,7 +45,7 @@ export default function HistoryScreen() {
     setRefreshing(false);
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: LogRow }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.technique}>{item.technique_name}</Text>
@@ -59,9 +59,6 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.switchBtn} onPress={() => navigation.navigate('LogScreen')}>
-        <Text style={styles.switchBtnText}>📝 Log</Text>
-      </TouchableOpacity>
       <FlatList
         data={logs}
         keyExtractor={(item, idx) => (item.id ? String(item.id) : String(idx))}

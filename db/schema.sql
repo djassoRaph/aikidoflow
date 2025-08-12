@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS techniques (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  technique TEXT NOT NULL,
+  note TEXT,
+  date TEXT NOT NULL
+); 
