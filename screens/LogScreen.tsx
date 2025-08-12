@@ -56,8 +56,8 @@ import { insertLog } from '../src/db';
 
 
 import { useNavigation } from '@react-navigation/native';
-import React, { useRef, useState } from 'react';
-import { Animated, Button, Keyboard, NativeModules, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Button, Keyboard, NativeModules, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Voice, { voiceAvailable } from '../src/voice'; // ✅ relative path
 console.log('voiceAvailable =', voiceAvailable);
 console.log('NativeModules.Voice =', NativeModules.Voice);
@@ -98,25 +98,82 @@ export default function LogScreen() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const navigation = useNavigation<any>();
+  const listeningRef = useRef<Field>(null);
+  useEffect(() => { listeningRef.current = listening; }, [listening]);
+  useEffect(() => {
+  if (!voiceAvailable) return;
 
-const startVoice = async (field: Field) => {
-  if (!voiceAvailable) {
-    setError('Voice not available in Expo Go');
-    return;
-  }
-  try {
-    setListening(field);
+  Voice.onSpeechStart = () => {
+    console.log('onSpeechStart');
     setFeedback('🎤 Listening...');
-    setError('');
-    Animated.spring(scaleAnim, { toValue: 1.4, useNativeDriver: true }).start();
-    await Voice.start(Platform.OS === 'ios' ? 'fr-FR' : 'fr-FR');
-  } catch (e: any) {
-    setError('Erreur micro: ' + (e?.message || ''));
+  };
+
+  Voice.onSpeechPartialResults = (e: any) => {
+    console.log('onSpeechPartialResults:', e?.value);
+    const field = listeningRef.current;
+    if (field && e?.value?.[0]) {
+      setForm(prev => ({ ...prev, [field]: e.value[0] })); // live preview
+      setSource('voice');
+    }
+  };
+
+  Voice.onSpeechResults = (e: any) => {
+    console.log('onSpeechResults:', e?.value);
+    const field = listeningRef.current;
+    if (field && e?.value?.[0]) {
+      setForm(prev => ({ ...prev, [field]: e.value[0] })); // final text
+      setSource('voice');
+    }
     setListening(null);
     setFeedback('');
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start();
-  }
-};
+  };
+
+  Voice.onSpeechEnd = () => {
+    console.log('onSpeechEnd');
+    setFeedback('');
+    setListening(null);
+  };
+
+  Voice.onSpeechError = (e: any) => {
+    console.log('onSpeechError:', e?.error);
+    setError('Erreur micro: ' + (e?.error?.message || ''));
+    setListening(null);
+    setFeedback('');
+  };
+
+  return () => {
+    // cleanup once when screen unmounts
+    Voice.destroy().then(Voice.removeAllListeners);
+    if (timerRef.current) clearTimeout(timerRef.current as any);
+  };
+}, [voiceAvailable]); // <— important: separate effect, runs once when voice is available
+
+  const startVoice = async (field: Field) => {
+    if (!voiceAvailable) { setError('Voice not available in Expo Go'); return; }
+    try {
+      setListening(field);
+      setFeedback('🎤 Listening...');
+      setError('');
+      Animated.spring(scaleAnim, { toValue: 1.4, useNativeDriver: true }).start();
+  
+      console.log('CALL Voice.start fr-FR');
+      await Voice.start('fr-FR', { EXTRA_PARTIAL_RESULTS: true } as any);
+  
+      // auto-stop after 2.5s in case user forgets to release
+      if (timerRef.current) clearTimeout(timerRef.current as any);
+      timerRef.current = setTimeout(() => {
+        console.log('CALL Voice.stop (auto)');
+        Voice.stop();
+      }, 2500) as any;
+    } catch (e: any) {
+      setError('Erreur micro: ' + (e?.message || ''));
+      setListening(null);
+      setFeedback('');
+      Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start();
+    }
+  };
+  
+
 
 const stopVoice = async () => {
   if (!voiceAvailable) return;
